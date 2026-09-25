@@ -2,11 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Search, X, Wallet, ScrollText, Loader2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
 import { useDebounce } from "@/hooks/useDebounce";
 import { buscaGlobalAction, type BuscaResult } from "@/actions/busca";
 import { formatCurrency, parseCurrency } from "@/lib/utils";
+import { Button } from "../ui/Button";
 
 export function SearchCommand() {
   const [open, setOpen] = useState(false);
@@ -57,7 +58,7 @@ export function SearchCommand() {
 
   return (
     <>
-      <button
+      <Button
         onClick={() => setOpen(true)}
         className="brutal-button flex items-center gap-2 mono text-xs"
       >
@@ -66,7 +67,7 @@ export function SearchCommand() {
         <kbd className="hidden md:inline mono text-[10px] px-1.5 py-0.5 border border-ink">
           ⌘K
         </kbd>
-      </button>
+      </Button>
 
       <AnimatePresence>
         {open && (
@@ -95,12 +96,12 @@ export function SearchCommand() {
                   placeholder="Buscar por beneficiário, autor, órgão..."
                   className="flex-1 bg-transparent outline-none mono text-sm placeholder:text-muted"
                 />
-                <button
+                <Button
                   onClick={() => setOpen(false)}
                   className="p-1 hover:bg-ink hover:text-paper transition-colors"
                 >
                   <X size={16} />
-                </button>
+                </Button>
               </div>
 
               <div className="max-h-[60vh] overflow-y-auto p-4">

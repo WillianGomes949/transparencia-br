@@ -12,7 +12,7 @@ import { useViagens } from '@/hooks/useViagens'
 import { useFilterStore } from '@/stores/filterStore'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { exportToCSV } from '@/lib/export'
-import { Download, Plane } from 'lucide-react'
+import { Calendar, Download, Plane } from 'lucide-react'
 import type { Viagem } from '@/types/api'
 
 export default function ViagensPage() {
@@ -186,5 +186,92 @@ export default function ViagensPage() {
         onPageChange={setPage}
       />
     </motion.div>
+  )
+}
+
+function DateFilter() {
+  const { 
+    dataIdaDe, dataIdaAte, 
+    dataRetornoDe, dataRetornoAte,
+    codigoOrgao,
+    setDataIdaDe, setDataIdaAte,
+    setDataRetornoDe, setDataRetornoAte,
+    setCodigoOrgao
+  } = useFilterStore()
+
+  return (
+    <div className="brutal-border p-4 bg-paper">
+      <div className="flex items-center gap-2 mb-4">
+        <Calendar size={18} />
+        <h3 className="display text-lg">Filtros de Viagem</h3>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="space-y-1">
+          <label className="mono text-[10px] uppercase tracking-widest text-muted">
+            Data Ida De *
+          </label>
+          <input
+            type="text"
+            value={dataIdaDe}
+            onChange={(e) => setDataIdaDe(e.target.value)}
+            placeholder="DD/MM/AAAA"
+            className="brutal-input w-full"
+          />
+        </div>
+        <div className="space-y-1">
+          <label className="mono text-[10px] uppercase tracking-widest text-muted">
+            Data Ida Até *
+          </label>
+          <input
+            type="text"
+            value={dataIdaAte}
+            onChange={(e) => setDataIdaAte(e.target.value)}
+            placeholder="DD/MM/AAAA"
+            className="brutal-input w-full"
+          />
+        </div>
+        <div className="space-y-1">
+          <label className="mono text-[10px] uppercase tracking-widest text-muted">
+            Data Retorno De *
+          </label>
+          <input
+            type="text"
+            value={dataRetornoDe}
+            onChange={(e) => setDataRetornoDe(e.target.value)}
+            placeholder="DD/MM/AAAA"
+            className="brutal-input w-full"
+          />
+        </div>
+        <div className="space-y-1">
+          <label className="mono text-[10px] uppercase tracking-widest text-muted">
+            Data Retorno Até *
+          </label>
+          <input
+            type="text"
+            value={dataRetornoAte}
+            onChange={(e) => setDataRetornoAte(e.target.value)}
+            placeholder="DD/MM/AAAA"
+            className="brutal-input w-full"
+          />
+        </div>
+        <div className="space-y-1">
+          <label className="mono text-[10px] uppercase tracking-widest text-muted">
+            Código Órgão (SIAFI) *
+          </label>
+          <input
+            type="text"
+            value={codigoOrgao}
+            onChange={(e) => setCodigoOrgao(e.target.value)}
+            placeholder="26000"
+            className="brutal-input w-full"
+          />
+        </div>
+      </div>
+      
+      <div className="mt-3 mono text-[10px] text-muted">
+        * Campos obrigatórios. Período máximo: 1 mês (31 dias).
+      </div>
+    </div>
   )
 }

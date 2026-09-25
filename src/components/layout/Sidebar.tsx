@@ -12,8 +12,9 @@ import {
   TestTube,
 } from "lucide-react";
 import { useUIStore } from "@/stores/uiStore";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
+import { Button } from "../ui/Button";
 
 const NAV = [
   { href: "/", label: "Início", icon: Home },
@@ -80,12 +81,12 @@ export function Sidebar() {
               className="md:hidden fixed left-0 top-0 bottom-0 w-64 bg-paper border-r-2 border-ink z-50"
             >
               <div className="flex justify-end p-4 border-b-2 border-ink">
-                <button
+                <Button
                   onClick={() => setSidebarOpen(false)}
                   className="brutal-button p-2"
                 >
                   <X size={18} />
-                </button>
+                </Button>
               </div>
               <nav className="p-4 space-y-1">
                 {NAV.map((item) => {

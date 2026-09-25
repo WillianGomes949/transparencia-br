@@ -15,12 +15,13 @@ export async function fetchEmendasAction(
   filters: EmendasFilter
 ): Promise<ActionResult<PaginatedResponse<Emenda>>> {
   try {
+    // ENDPOINT CORRETO: /api-de-dados/emendas
     const response = await apiClient<any>({
       endpoint: '/emendas',
       params: {
         ano: filters.ano,
-        autor: filters.autor,
-        uf: filters.uf,
+        nomeAutor: filters.autor,
+        codigoFuncao: filters.funcao,
         pagina: filters.page,
       },
     })
@@ -53,7 +54,7 @@ export async function fetchEmendaByNumeroAction(
 ): Promise<Emenda | null> {
   try {
     const data = await apiClient<any>({
-      endpoint: '/emendas',
+      endpoint: '/api-de-dados/emendas',
       params: { numeroEmenda: numero, pagina: 1 },
     })
     const emendas = Array.isArray(data) ? data : data.data || []

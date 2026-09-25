@@ -26,7 +26,6 @@
   --shadow-brutal-sm: 3px 3px 0 0 #0a0a0a;
   --shadow-brutal-hover: 2px 2px 0 0 #0a0a0a;
   --shadow-brutal-accent: 6px 6px 0 0 #ff3b00;
-
 }
 
 /* =====================================================
@@ -63,7 +62,9 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 * {
@@ -73,12 +74,16 @@ body {
 }
 
 /* Tipografia brutalista utilitária */
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   font-family: var(--font-display);
   letter-spacing: -0.02em;
 }
 
-code, pre, .font-mono {
+code,
+pre,
+.font-mono {
   font-family: var(--font-mono);
 }
 

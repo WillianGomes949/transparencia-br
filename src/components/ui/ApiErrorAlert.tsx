@@ -1,7 +1,8 @@
 'use client'
 
 import { AlertCircle, Key, WifiOff, RefreshCw } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
+import { Button } from './Button'
 
 interface ApiErrorAlertProps {
   error: string
@@ -60,13 +61,13 @@ export function ApiErrorAlert({ error, errorCode, onRetry }: ApiErrorAlertProps)
           )}
 
           {onRetry && (
-            <button
+            <Button
               onClick={onRetry}
               className="brutal-button mt-4 flex items-center gap-2"
             >
               <RefreshCw size={14} />
               Tentar Novamente
-            </button>
+            </Button>
           )}
         </div>
       </div>
