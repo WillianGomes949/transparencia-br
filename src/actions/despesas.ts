@@ -5,11 +5,18 @@ import type { Despesa, PaginatedResponse } from '@/types/api'
 import type { DespesasFilter } from '@/types/filters'
 import { DEFAULT_PAGE_SIZE } from '@/lib/constants'
 
+export interface ActionResult<T> {
+  success: boolean
+  data?: T
+  error?: string
+  errorCode?: string
+}
+
 export async function fetchDespesasAction(
   filters: DespesasFilter
-): Promise<PaginatedResponse<Despesa>> {
+): Promise<ActionResult<PaginatedResponse<Despesa>>> {
   try {
-    const data = await apiClient<Despesa[]>({
+    const response = await apiClient<any>({
       endpoint: '/despesas',
       params: {
         codigoOrgaoSuperior: filters.orgao,
@@ -20,31 +27,57 @@ export async function fetchDespesasAction(
       },
     })
 
+    // A API pode retornar array direto ou objeto com data
+    const despesas = Array.isArray(response) ? response : response.data || []
+
     return {
-      data: data || [],
-      total: data?.length || 0,
-      page: filters.page,
-      pageSize: filters.pageSize || DEFAULT_PAGE_SIZE,
+      success: true,
+      data: {
+        data: despesas,
+        total: response.totalCount || despesas.length,
+        page: filters.page,
+        pageSize: filters.pageSize || DEFAULT_PAGE_SIZE,
+      },
     }
   } catch (error) {
     if (error instanceof ApiError) {
       console.error(`[fetchDespesasAction] ${error.endpoint}: ${error.message}`)
+      return {
+        success: false,
+        error: error.message,
+        errorCode: error.status === 401 ? 'INVALID_TOKEN' : 'API_ERROR',
+      }
     }
-    return { data: [], total: 0, page: filters.page, pageSize: filters.pageSize }
+    return {
+      success: false,
+      error: 'Erro desconhecido ao buscar despesas',
+      errorCode: 'UNKNOWN_ERROR',
+    }
   }
 }
 
 export async function fetchTotalDespesasAction(
   ano: number,
   orgao?: string
-): Promise<number> {
+): Promise<ActionResult<number>> {
   try {
-    const data = await apiClient<Despesa[]>({
+    const response = await apiClient<any>({
       endpoint: '/despesas',
       params: { ano, codigoOrgaoSuperior: orgao },
     })
-    return (data || []).reduce((sum, d) => sum + (d.valor || 0), 0)
-  } catch {
-    return 0
+
+    const despesas = Array.isArray(response) ? response : response.data || []
+    const total = despesas.reduce((sum: number, d: any) => sum + (d.valor || 0), 0)
+
+    return { success: true, data: total }
+  } catch (error) {
+    if (error instanceof ApiError) {
+      return {
+        success: false,
+        error: error.message,
+        errorCode: error.status === 401 ? 'INVALID_TOKEN' : 'API_ERROR',
+      }
+    }
+    return { success: false, error: 'Erro ao calcular total', errorCode: 'UNKNOWN_ERROR' }
   }
 }

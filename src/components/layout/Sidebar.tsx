@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Wallet,
   ScrollText,
@@ -9,46 +9,48 @@ import {
   FileSignature,
   Home,
   X,
-} from 'lucide-react'
-import { useUIStore } from '@/stores/uiStore'
-import { motion, AnimatePresence } from 'framer-motion'
-import { cn } from '@/lib/utils'
+  TestTube,
+} from "lucide-react";
+import { useUIStore } from "@/stores/uiStore";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 const NAV = [
-  { href: '/', label: 'Início', icon: Home },
-  { href: '/gastos', label: 'Gastos', icon: Wallet },
-  { href: '/emendas', label: 'Emendas', icon: ScrollText },
-  { href: '/viagens', label: 'Viagens', icon: Plane },
-  { href: '/contratos', label: 'Contratos', icon: FileSignature },
-]
+  { href: "/", label: "Início", icon: Home },
+  { href: "/gastos", label: "Gastos", icon: Wallet },
+  { href: "/emendas", label: "Emendas", icon: ScrollText },
+  { href: "/viagens", label: "Viagens", icon: Plane },
+  { href: "/contratos", label: "Contratos", icon: FileSignature },
+  { href: "/debug", label: "Debug", icon: TestTube },
+];
 
 export function Sidebar() {
-  const pathname = usePathname()
-  const { sidebarOpen, setSidebarOpen } = useUIStore()
+  const pathname = usePathname();
+  const { sidebarOpen, setSidebarOpen } = useUIStore();
 
   return (
     <>
       {/* Desktop */}
-      <aside className="hidden md:block w-64 border-r-2 border-ink bg-paper min-h-[calc(100vh-80px)]">
+      <aside className="relative hidden md:block w-64 border-r-2 border-ink bg-paper min-h-[calc(100vh-80px)]">
         <nav className="p-4 space-y-1">
           {NAV.map((item) => {
-            const Icon = item.icon
-            const active = pathname === item.href
+            const Icon = item.icon;
+            const active = pathname === item.href;
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  'flex items-center gap-3 px-3 py-3 border-2 border-transparent mono text-sm uppercase tracking-wider transition-all',
+                  "flex items-center gap-3 px-3 py-3 border-2 border-transparent mono text-sm uppercase tracking-wider transition-all",
                   active
-                    ? 'bg-ink text-paper border-ink'
-                    : 'hover:border-ink hover:pl-5'
+                    ? "bg-ink text-paper border-ink"
+                    : "hover:border-ink hover:pl-5",
                 )}
               >
                 <Icon size={18} />
                 <span>{item.label}</span>
               </Link>
-            )
+            );
           })}
         </nav>
 
@@ -71,10 +73,10 @@ export function Sidebar() {
               className="md:hidden fixed inset-0 bg-ink/40 z-40"
             />
             <motion.aside
-              initial={{ x: '-100%' }}
+              initial={{ x: "-100%" }}
               animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ type: 'tween', duration: 0.2 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "tween", duration: 0.2 }}
               className="md:hidden fixed left-0 top-0 bottom-0 w-64 bg-paper border-r-2 border-ink z-50"
             >
               <div className="flex justify-end p-4 border-b-2 border-ink">
@@ -87,22 +89,24 @@ export function Sidebar() {
               </div>
               <nav className="p-4 space-y-1">
                 {NAV.map((item) => {
-                  const Icon = item.icon
-                  const active = pathname === item.href
+                  const Icon = item.icon;
+                  const active = pathname === item.href;
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
                       onClick={() => setSidebarOpen(false)}
                       className={cn(
-                        'flex items-center gap-3 px-3 py-3 border-2 border-transparent mono text-sm uppercase tracking-wider',
-                        active ? 'bg-ink text-paper border-ink' : 'hover:border-ink'
+                        "flex items-center gap-3 px-3 py-3 border-2 border-transparent mono text-sm uppercase tracking-wider",
+                        active
+                          ? "bg-ink text-paper border-ink"
+                          : "hover:border-ink",
                       )}
                     >
                       <Icon size={18} />
                       <span>{item.label}</span>
                     </Link>
-                  )
+                  );
                 })}
               </nav>
             </motion.aside>
@@ -110,5 +114,5 @@ export function Sidebar() {
         )}
       </AnimatePresence>
     </>
-  )
+  );
 }

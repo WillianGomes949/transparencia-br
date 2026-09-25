@@ -5,6 +5,7 @@ export interface PaginatedResponse<T> {
   pageSize: number
 }
 
+// ========== DESPESAS ==========
 export interface Despesa {
   codigoOrgaoSuperior: string
   nomeOrgaoSuperior: string
@@ -33,34 +34,98 @@ export interface Despesa {
   fonteFinalidade: string
 }
 
+// ========== EMENDAS ==========
 export interface Emenda {
-  numeroEmenda: string
+  codigoEmenda: string
   ano: number
-  tipo: string
+  tipoEmenda: string
   autor: string
-  partidoAutor: string
-  ufAutor: string
-  localidade: string
-  valorEmpenhado: number
-  valorLiquidado: number
-  valorPago: number
-  valorAPagar: number
-  situacao: string
+  nomeAutor: string
+  numeroEmenda: string
+  localidadeDoGasto: string
+  funcao: string
+  subfuncao: string
+  // Valores vêm como string na API (ex: "1500000,00")
+  valorEmpenhado: string
+  valorLiquidado: string
+  valorPago: string
+  valorRestoInscrito: string
+  valorRestoCancelado: string
+  valorRestoPago: string
+}
+
+// ========== VIAGENS ==========
+export interface OrgaoMaximo {
+  codigo: string
+  sigla: string
+  nome: string
+}
+
+export interface OrgaoInfo {
+  nome: string
+  codigoSIAFI: string
+  cnpj: string
+  sigla: string
+  descricaoPoder: string
+  orgaoMaximo: OrgaoMaximo
+}
+
+export interface UnidadeGestora {
+  codigo: string
+  nome: string
+  descricaoPoder: string
+  orgaoVinculado: {
+    codigoSIAFI: string
+    cnpj: string
+    sigla: string
+    nome: string
+  }
+  orgaoMaximo: OrgaoMaximo
+}
+
+export interface ViagemInfo {
+  motivo: string
+  pcdp: string
+  ano: number
+  numPcdp: string
+  justificativaUrgente: string
+  urgenciaViagem: string
+}
+
+export interface Beneficiario {
+  cpfFormatado: string
+  nis: string
+  nome: string
+}
+
+export interface CargoInfo {
+  codigoSIAPE: string
+  descricao: string
 }
 
 export interface Viagem {
-  orgao: string
-  cpf: string
-  nome: string
-  cargo: string
-  motivo: string
-  dataInicio: string
-  dataFim: string
-  destino: string
-  valorDiarias: number
-  valorPassagens: number
+  id: number
+  viagem: ViagemInfo
+  situacao: string
+  beneficiario: Beneficiario
+  cargo: CargoInfo
+  funcao: CargoInfo
+  tipoViagem: string
+  orgao: OrgaoInfo
+  orgaoPagamento: OrgaoInfo
+  unidadeGestoraResponsavel: UnidadeGestora
+  dataInicioAfastamento: string
+  dataFimAfastamento: string
+  valorTotalRestituicao: number
+  valorTotalTaxaAgenciamento: number
+  valorMulta: number
+  valorTotalDiarias: number
+  valorTotalPassagem: number
+  valorTotalViagem: number
+  valorTotalDevolucao: number
 }
 
+// ========== CONTRATOS ==========
 export interface Contrato {
   numero: string
   objeto: string

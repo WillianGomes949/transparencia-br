@@ -10,9 +10,10 @@ import { BarChart } from '@/components/charts/BarChart'
 import { Button } from '@/components/ui/Button'
 import { useEmendas } from '@/hooks/useEmendas'
 import { useFilterStore } from '@/stores/filterStore'
-import { formatCurrency } from '@/lib/utils'
+import { formatCurrency, parseCurrency } from '@/lib/utils'
 import { exportToCSV } from '@/lib/export'
 import { Download, ScrollText } from 'lucide-react'
+import Link from 'next/link'
 import type { Emenda } from '@/types/api'
 
 export default function EmendasPage() {
@@ -23,40 +24,86 @@ export default function EmendasPage() {
     if (!data?.data.length) return []
     const grouped: Record<string, number> = {}
     data.data.forEach((e) => {
-      const key = e.autor || '—'
-      grouped[key] = (grouped[key] || 0) + (e.valorPago || 0)
+      const key = e.nomeAutor || e.autor || '—'
+      grouped[key] = (grouped[key] || 0) + parseCurrency(e.valorPago)
     })
     return Object.entries(grouped)
-      .map(([label, value]) => ({ label: label.slice(0, 12), value }))
+      .map(([label, value]) => ({ label: label.slice(0, 14), value }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 10)
   }, [data])
 
   const totalPago = useMemo(
-    () => data?.data.reduce((s, e) => s + (e.valorPago || 0), 0) ?? 0,
+    () =>
+      data?.data.reduce((s, e) => s + parseCurrency(e.valorPago), 0) ?? 0,
     [data]
   )
   const totalEmpenhado = useMemo(
-    () => data?.data.reduce((s, e) => s + (e.valorEmpenhado || 0), 0) ?? 0,
+    () =>
+      data?.data.reduce((s, e) => s + parseCurrency(e.valorEmpenhado), 0) ?? 0,
+    [data]
+  )
+  const totalLiquidado = useMemo(
+    () =>
+      data?.data.reduce((s, e) => s + parseCurrency(e.valorLiquidado), 0) ?? 0,
     [data]
   )
 
   const columns = [
-    { key: 'numero', header: 'Nº', render: (r: Emenda) => r.numeroEmenda },
-    { key: 'autor', header: 'Autor', render: (r: Emenda) => r.autor },
-    { key: 'uf', header: 'UF', render: (r: Emenda) => r.ufAutor },
-    { key: 'localidade', header: 'Localidade', render: (r: Emenda) => r.localidade },
+    {
+      key: 'numero',
+      header: 'Nº',
+      render: (r: Emenda) => (
+        <Link
+          href={`/emendas/${r.numeroEmenda}`}
+          className="mono text-xs hover:underline"
+        >
+          {r.numeroEmenda}
+        </Link>
+      ),
+    },
+    {
+      key: 'autor',
+      header: 'Autor',
+      render: (r: Emenda) => (
+        <div>
+          <div className="font-medium">{r.nomeAutor || r.autor}</div>
+          <div className="mono text-[10px] text-muted">{r.autor}</div>
+        </div>
+      ),
+    },
+    {
+      key: 'tipo',
+      header: 'Tipo',
+      render: (r: Emenda) => (
+        <span className="mono text-[10px] uppercase tracking-widest">
+          {r.tipoEmenda}
+        </span>
+      ),
+    },
+    {
+      key: 'localidade',
+      header: 'Localidade',
+      render: (r: Emenda) => r.localidadeDoGasto || '—',
+    },
+    {
+      key: 'funcao',
+      header: 'Função',
+      render: (r: Emenda) => r.funcao || '—',
+    },
     {
       key: 'empenhado',
       header: 'Empenhado',
       className: 'text-right mono',
-      render: (r: Emenda) => formatCurrency(r.valorEmpenhado),
+      render: (r: Emenda) => formatCurrency(parseCurrency(r.valorEmpenhado)),
     },
     {
       key: 'pago',
       header: 'Pago',
       className: 'text-right mono',
-      render: (r: Emenda) => formatCurrency(r.valorPago),
+      render: (r: Emenda) => (
+        <span className="font-bold">{formatCurrency(parseCurrency(r.valorPago))}</span>
+      ),
     },
   ]
 
@@ -78,10 +125,14 @@ export default function EmendasPage() {
 
       <FilterPanel />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card
           label="Total empenhado"
           value={isLoading ? '...' : formatCurrency(totalEmpenhado)}
+        />
+        <Card
+          label="Total liquidado"
+          value={isLoading ? '...' : formatCurrency(totalLiquidado)}
         />
         <Card
           label="Total pago"
@@ -102,7 +153,27 @@ export default function EmendasPage() {
         </h2>
         <Button
           variant="ghost"
-          onClick={() => data?.data && exportToCSV(data.data, 'emendas')}
+          onClick={() =>
+            data?.data &&
+            exportToCSV(
+              data.data.map((e) => ({
+                numero: e.numeroEmenda,
+                autor: e.nomeAutor,
+                codigoAutor: e.autor,
+                tipo: e.tipoEmenda,
+                ano: e.ano,
+                localidade: e.localidadeDoGasto,
+                funcao: e.funcao,
+                empenhado: parseCurrency(e.valorEmpenhado),
+                liquidado: parseCurrency(e.valorLiquidado),
+                pago: parseCurrency(e.valorPago),
+                restoInscrito: parseCurrency(e.valorRestoInscrito),
+                restoCancelado: parseCurrency(e.valorRestoCancelado),
+                restoPago: parseCurrency(e.valorRestoPago),
+              })),
+              'emendas'
+            )
+          }
           disabled={!data?.data.length}
         >
           <Download size={14} />

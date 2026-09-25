@@ -1,12 +1,15 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { Menu, User2, RefreshCw } from 'lucide-react'
-import { useUIStore } from '@/stores/uiStore'
-import { motion } from 'framer-motion'
+import Link from "next/link";
+import { Menu, User2, RefreshCw, Moon, Sun } from "lucide-react";
+import { useThemeStore } from "@/stores/themeStore";
+import { useUIStore } from "@/stores/uiStore";
+import { motion } from "framer-motion";
+import { SearchCommand } from "./SearchCommand";
 
 export function Header() {
-  const toggleSidebar = useUIStore((s) => s.toggleSidebar)
+  const toggleSidebar = useUIStore((s) => s.toggleSidebar);
+  const { dark, toggle } = useThemeStore();
 
   return (
     <header className="border-b-2 border-ink bg-paper sticky top-0 z-40">
@@ -22,7 +25,7 @@ export function Header() {
           <Link href="/" className="flex items-baseline gap-2 group">
             <motion.span
               className="display text-2xl md:text-3xl"
-              whileHover={{ letterSpacing: '-0.02em' }}
+              whileHover={{ letterSpacing: "-0.02em" }}
             >
               TRANSPARÊNCIA
             </motion.span>
@@ -46,8 +49,16 @@ export function Header() {
           >
             <User2 size={18} />
           </a>
+          <button
+            onClick={toggle}
+            className="brutal-button p-2"
+            aria-label="Alternar tema"
+          >
+            {dark ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+          <SearchCommand/>
         </div>
       </div>
     </header>
-  )
+  );
 }

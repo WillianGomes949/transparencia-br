@@ -10,7 +10,7 @@ import { BarChart } from '@/components/charts/BarChart'
 import { Button } from '@/components/ui/Button'
 import { useViagens } from '@/hooks/useViagens'
 import { useFilterStore } from '@/stores/filterStore'
-import { formatCurrency } from '@/lib/utils'
+import { formatCurrency, formatDate } from '@/lib/utils'
 import { exportToCSV } from '@/lib/export'
 import { Download, Plane } from 'lucide-react'
 import type { Viagem } from '@/types/api'
@@ -23,41 +23,82 @@ export default function ViagensPage() {
     if (!data?.data.length) return []
     const grouped: Record<string, number> = {}
     data.data.forEach((v) => {
-      const key = v.destino || '—'
-      grouped[key] =
-        (grouped[key] || 0) + (v.valorDiarias || 0) + (v.valorPassagens || 0)
+      const key = v.orgao?.orgaoMaximo?.sigla || v.orgao?.sigla || '—'
+      grouped[key] = (grouped[key] || 0) + (v.valorTotalViagem || 0)
     })
     return Object.entries(grouped)
-      .map(([label, value]) => ({ label: label.slice(0, 12), value }))
+      .map(([label, value]) => ({ label, value }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 10)
   }, [data])
 
   const total = useMemo(
-    () =>
-      data?.data.reduce(
-        (s, v) => s + (v.valorDiarias || 0) + (v.valorPassagens || 0),
-        0
-      ) ?? 0,
+    () => data?.data.reduce((s, v) => s + (v.valorTotalViagem || 0), 0) ?? 0,
+    [data]
+  )
+
+  const totalDiarias = useMemo(
+    () => data?.data.reduce((s, v) => s + (v.valorTotalDiarias || 0), 0) ?? 0,
+    [data]
+  )
+
+  const totalPassagens = useMemo(
+    () => data?.data.reduce((s, v) => s + (v.valorTotalPassagem || 0), 0) ?? 0,
     [data]
   )
 
   const columns = [
-    { key: 'nome', header: 'Nome', render: (r: Viagem) => r.nome },
-    { key: 'cargo', header: 'Cargo', render: (r: Viagem) => r.cargo },
-    { key: 'destino', header: 'Destino', render: (r: Viagem) => r.destino },
-    { key: 'motivo', header: 'Motivo', render: (r: Viagem) => r.motivo },
     {
-      key: 'periodo',
+      key: 'nome',
+      header: 'Beneficiário',
+      render: (r: Viagem) => r.beneficiario?.nome || '—',
+    },
+    {
+      key: 'cargo',
+      header: 'Cargo',
+      render: (r: Viagem) => r.cargo?.descricao || '—',
+    },
+    {
+      key: 'orgao',
+      header: 'Órgão',
+      render: (r: Viagem) =>
+        r.orgao?.orgaoMaximo?.sigla || r.orgao?.sigla || '—',
+    },
+    {
+      key: 'motivo',
+      header: 'Motivo',
+      render: (r: Viagem) => (
+        <span className="line-clamp-2">{r.viagem?.motivo || '—'}</span>
+      ),
+    },
+    {
+      key: 'destino',
       header: 'Período',
-      render: (r: Viagem) => `${r.dataInicio} → ${r.dataFim}`,
+      render: (r: Viagem) => (
+        <span className="mono text-xs">
+          {formatDate(r.dataInicioAfastamento)} →{' '}
+          {formatDate(r.dataFimAfastamento)}
+        </span>
+      ),
+    },
+    {
+      key: 'situacao',
+      header: 'Situação',
+      render: (r: Viagem) => (
+        <span
+          className={`mono text-[10px] uppercase tracking-widest px-2 py-1 border-2 border-ink ${
+            r.situacao === 'Realizada' ? 'bg-paper' : 'bg-ink text-paper'
+          }`}
+        >
+          {r.situacao}
+        </span>
+      ),
     },
     {
       key: 'valor',
       header: 'Total',
       className: 'text-right mono',
-      render: (r: Viagem) =>
-        formatCurrency((r.valorDiarias || 0) + (r.valorPassagens || 0)),
+      render: (r: Viagem) => formatCurrency(r.valorTotalViagem || 0),
     },
   ]
 
@@ -79,26 +120,26 @@ export default function ViagensPage() {
 
       <FilterPanel />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card
           label="Total gasto"
           value={isLoading ? '...' : formatCurrency(total)}
         />
         <Card
+          label="Diárias"
+          value={isLoading ? '...' : formatCurrency(totalDiarias)}
+        />
+        <Card
+          label="Passagens"
+          value={isLoading ? '...' : formatCurrency(totalPassagens)}
+        />
+        <Card
           label="Viagens"
           value={isLoading ? '...' : data?.total ?? 0}
         />
-        <Card
-          label="Ticket médio"
-          value={
-            isLoading
-              ? '...'
-              : formatCurrency(total / Math.max(data?.total ?? 1, 1))
-          }
-        />
       </div>
 
-      <BarChart data={chartData} title="Top 10 destinos" />
+      <BarChart data={chartData} title="Top 10 órgãos por valor" />
 
       <div className="flex items-center justify-between">
         <h2 className="display text-2xl flex items-center gap-2">
@@ -107,7 +148,24 @@ export default function ViagensPage() {
         </h2>
         <Button
           variant="ghost"
-          onClick={() => data?.data && exportToCSV(data.data, 'viagens')}
+          onClick={() =>
+            data?.data &&
+            exportToCSV(
+              data.data.map((v) => ({
+                nome: v.beneficiario?.nome,
+                cargo: v.cargo?.descricao,
+                orgao: v.orgao?.orgaoMaximo?.nome,
+                motivo: v.viagem?.motivo,
+                inicio: v.dataInicioAfastamento,
+                fim: v.dataFimAfastamento,
+                situacao: v.situacao,
+                diarias: v.valorTotalDiarias,
+                passagens: v.valorTotalPassagem,
+                total: v.valorTotalViagem,
+              })),
+              'viagens'
+            )
+          }
           disabled={!data?.data.length}
         >
           <Download size={14} />
@@ -118,9 +176,7 @@ export default function ViagensPage() {
       <Table
         columns={columns}
         data={data?.data ?? []}
-        keyExtractor={(r) =>
-          `${r.cpf}-${r.dataInicio}-${r.destino}-${r.motivo}`
-        }
+        keyExtractor={(r) => String(r.id)}
       />
 
       <Pagination

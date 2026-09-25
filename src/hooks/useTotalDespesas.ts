@@ -9,7 +9,15 @@ export function useTotalDespesas() {
 
   return useQuery({
     queryKey: ['total-despesas', ano, orgao],
-    queryFn: () => fetchTotalDespesasAction(ano, orgao || undefined),
+    queryFn: async () => {
+      const result = await fetchTotalDespesasAction(ano, orgao || undefined)
+
+      if (!result.success) {
+        throw new Error(result.error || 'Erro ao calcular total')
+      }
+
+      return result.data!
+    },
     staleTime: 5 * 60 * 1000,
   })
 }

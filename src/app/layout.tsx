@@ -4,6 +4,7 @@ import './globals.css'
 import { Providers } from '@/components/providers/Providers'
 import { Header } from '@/components/layout/Header'
 import { Sidebar } from '@/components/layout/Sidebar'
+import { ThemeProvider } from '@/components/providers/ThemeProvider'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-body' })
 const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' })
@@ -26,15 +27,18 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={`${inter.variable} ${mono.variable} ${archivo.variable}`}>
       <body className="bg-paper text-ink font-body antialiased min-h-screen">
-        <Providers>
-          <Header />
-          <div className="flex">
-            <Sidebar />
-            <main className="flex-1 min-h-[calc(100vh-80px)] p-6 md:p-10">
-              {children}
-            </main>
-          </div>
-        </Providers>
+         <ThemeProvider>
+          <Providers>
+            <Header />
+            <div className="flex">
+              <Sidebar />
+              <main className="flex-1 min-h-[calc(100vh-80px)] p-6 md:p-10">
+                {children}
+              </main>
+            </div>
+          </Providers>
+        </ThemeProvider>
+
       </body>
     </html>
   )

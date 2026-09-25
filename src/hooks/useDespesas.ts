@@ -9,14 +9,21 @@ export function useDespesas() {
 
   return useQuery({
     queryKey: ['despesas', ano, orgao, mes, page],
-    queryFn: () =>
-      fetchDespesasAction({
+    queryFn: async () => {
+      const result = await fetchDespesasAction({
         ano,
         orgao: orgao || undefined,
         mes,
         page,
         pageSize: 20,
-      }),
+      })
+
+      if (!result.success) {
+        throw new Error(result.error || 'Erro ao buscar despesas')
+      }
+
+      return result.data!
+    },
     staleTime: 5 * 60 * 1000,
   })
 }
