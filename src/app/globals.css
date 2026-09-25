@@ -1,26 +1,30 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+/* =====================================================
+   TEMA: Variáveis de cores (Light = padrão, Dark = .dark)
+   ===================================================== */
+@theme{
+    extend: {
+      colors: {
+        paper: '#F5F3EE',
+        ink: '#0A0A0A',
+        muted: '#6B6B6B',
+        line: '#0A0A0A',
+        accent: '#FF3B00',
+      },
+      fontFamily: {
+        mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+        display: ['Archivo Black', 'Inter', 'sans-serif'],
+        body: ['Inter', 'sans-serif'],
+      },
+      borderWidth: {
+        DEFAULT: '2px',
+        3: '3px',
+        4: '4px',
+      },
+      boxShadow: {
+        brutal: '6px 6px 0 0 #0A0A0A',
+        'brutal-sm': '3px 3px 0 0 #0A0A0A',
+        'brutal-hover': '2px 2px 0 0 #0A0A0A',
+      }
+    }}
